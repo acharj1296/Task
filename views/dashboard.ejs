@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <h1>Task Manager</h1>
+      </div>
+      <div class="navbar-content">
+        <a href="/profile" class="profile-link-wrapper">
+         <div class="profile-display-group">
+           <div class="navbar-profile-pic">
+              <% if (user.profilePicturePath) { %>
+               <img src="<%= user.profilePicturePath %>" alt="Profile Picture">
+             <% } else { %>
+               <div class="navbar-initial-avatar"><%= (user.firstName || user.username.split(' ')[0]).charAt(0).toUpperCase() %></div>
+             <% } %>
+           </div>
+           <span class="navbar-username-text"><%= user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username %></span>
+         </div>
+       </a>
+     </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="dashboard">
+      <div class="stats-bar">
+        <div class="stat-card total-tasks">
+          <span class="count"><%= totalCount %></span>
+          <span class="label">Total Tasks</span>
+        </div>
+        <div class="stat-card active-tasks">
+          <span class="count"><%= activeCount %></span>
+          <span class="label">Active Tasks</span>
+        </div>
+        <div class="stat-card completed-tasks">
+          <span class="count"><%= completedCount %></span>
+          <span class="label">Completed Tasks</span>
+        </div>
+        <div class="stat-card overdue-tasks">
+          <span class="count"><%= overdueCount %></span>
+          <span class="label">Overdue Tasks</span>
+        </div>
+      </div>
+      <div class="dashboard-header">
+        <h2>Your Tasks</h2>
+        <a href="/tasks/new" class="btn btn-primary">Add New Task</a>
+      </div>
+
+      <% if (tasks.length === 0) { %>
+        <div class="no-tasks">
+          <p>You have no tasks yet. <a href="/tasks/new">Create your first task</a></p>
+        </div>
+      <% } else { %>
+        <div class="task-list">
+          <% tasks.forEach(task => { %>
+            <div class="task-card <%= task.status %>">
+              <div class="task-content">
+                <h3><%= task.title %></h3>
+                <% if (task.description) { %>
+                  <p><%= task.description %></p>
+                <% } %>
+                <small>Due: <%= new Date(task.dueDate).toLocaleDateString() %><%= task.dueTime ? ' at ' + task.dueTime : '' %></small>
+                <% if (task.status === 'completed') { %>
+                  <span class="checkmark">✓</span>
+                <% } %>
+              </div>
+              <div class="task-actions">
+                <form action="/tasks/<%= task._id %>/toggle" method="POST" style="display: inline;">
+                  <button type="submit" class="btn btn-small <%= task.status === 'completed' ? 'btn-success' : 'btn-warning' %>">
+                    <%= task.status === 'completed' ? 'Mark Pending' : 'Mark Complete' %>
+                  </button>
+                </form>
+                <a href="/tasks/<%= task._id %>/edit" class="btn btn-small btn-secondary">Edit</a>
+                <form action="/tasks/<%= task._id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this task?')">
+                  <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

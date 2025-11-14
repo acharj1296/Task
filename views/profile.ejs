@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Task Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <h1>Task Manager</h1>
+      </div>
+      <div class="navbar-content">
+        <a href="/tasks" class="btn btn-secondary">Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="form-container">
+      <h1>My Profile</h1>
+
+      <% if (message) { %>
+        <div class="message <%= message.type %>">
+          <%= message.text %>
+        </div>
+      <% } %>
+
+      <!-- Profile Picture Section -->
+      <div class="profile-section">
+        <h2>Profile Picture</h2>
+        <div class="profile-picture-container">
+          <div class="profile-pic-wrapper">
+            <% if (user.profilePicturePath) { %>
+              <img src="<%= user.profilePicturePath %>" alt="Profile Picture" class="profile-picture">
+            <% } else { %>
+              <div class="initial-avatar"><%= user.username.charAt(0).toUpperCase() %></div>
+            <% } %>
+            <div class="camera-icon" id="cameraIcon">
+              <i class="fas fa-camera"></i>
+            </div>
+          </div>
+          <input type="file" id="actualFileInput" name="profilePic" accept="image/*" style="display: none;">
+        </div>
+      </div>
+
+      <!-- User Information Section -->
+      <div class="profile-section">
+        <div class="account-info-header">
+          <h2 class="section-title">Account Information</h2>
+          <button type="button" class="btn-edit-profile" onclick="openEditModal()">Edit Profile</button>
+        </div>
+        <div class="account-info-data">
+          <div class="info-item">
+            <label>First Name:</label>
+            <span><%= user.firstName || '' %></span>
+          </div>
+          <div class="info-item">
+            <label>Last Name:</label>
+            <span><%= user.lastName || '' %></span>
+          </div>
+          <div class="info-item">
+            <label>Username:</label>
+            <span><%= user.username %></span>
+          </div>
+          <div class="info-item">
+            <label>Email Address:</label>
+            <span><%= user.email %></span>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- Logout Section -->
+      <div class="profile-section">
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-danger btn-full">Logout</button>
+        </form>
+      </div>
+
+      <!-- Edit Profile Modal -->
+      <div id="editProfileModal" class="modal">
+        <div class="modal-overlay" onclick="closeEditModal()"></div>
+        <div class="modal-content">
+          <h2>Edit Account Information</h2>
+          <form action="/profile/update-info" method="POST">
+            <div class="form-group">
+              <label for="editFirstName">First Name:</label>
+              <input type="text" id="editFirstName" name="firstName" value="<%= user.firstName || '' %>" required>
+            </div>
+            <div class="form-group">
+              <label for="editLastName">Last Name:</label>
+              <input type="text" id="editLastName" name="lastName" value="<%= user.lastName || '' %>" required>
+            </div>
+            <div class="form-group">
+              <label for="editUsername">Username:</label>
+              <input type="text" id="editUsername" name="username" value="<%= user.username %>" required>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openEditModal() {
+      document.getElementById('editProfileModal').style.display = 'block';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editProfileModal').style.display = 'none';
+    }
+
+    document.getElementById('cameraIcon').addEventListener('click', function() {
+      document.getElementById('actualFileInput').click();
+    });
+
+    document.getElementById('actualFileInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('profilePic', file);
+
+        fetch('/profile/upload-photo', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+          // Reload the page to show the updated profile picture
+          location.reload();
+        })
+        .catch(error => {
+          console.error('Error uploading file:', error);
+          alert('An error occurred while uploading the picture. Please try again.');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Task Manager</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h1>Login</h1>
+      <% if (error) { %>
+        <div class="error-message"><%= error %></div>
+      <% } %>
+      <form action="/login" method="POST">
+        <div class="form-group">
+          <label for="identifier">Username or Email Address</label>
+          <input type="text" id="identifier" name="identifier" placeholder="Enter username or email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-container">
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" id="toggle-password">Show</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+      <p class="form-footer">
+        <a href="/forgot-password">Forgot Password?</a><br>
+        Don't have an account? <a href="/register">Register here</a>
+      </p>
+    </div>
+  </div>
+  <script>
+    document.getElementById('toggle-password').addEventListener('click', function() {
+      const passwordInput = document.getElementById('password');
+      const toggleButton = this;
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleButton.textContent = 'Hide';
+      } else {
+        passwordInput.type = 'password';
+        toggleButton.textContent = 'Show';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= isEdit ? 'Edit Task' : 'New Task' %> - Task Manager</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h1><%= isEdit ? 'Edit Task' : 'Create New Task' %></h1>
+      <form action="<%= isEdit ? `/tasks/${task._id}` : '/tasks' %>" method="POST">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" id="title" name="title" required maxlength="100" value="<%= isEdit ? task.title : '' %>">
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" maxlength="500" rows="4"><%= isEdit ? task.description : '' %></textarea>
+        </div>
+        <div class="form-group">
+          <label for="dueDate">Due Date</label>
+          <input type="date" id="dueDate" name="dueDate" required value="<%= isEdit ? task.dueDate.toISOString().split('T')[0] : '' %>">
+        </div>
+        <div class="form-group">
+          <label for="dueTime">Due Time</label>
+          <input type="time" id="dueTime" name="dueTime" value="<%= isEdit && task.dueTime ? task.dueTime : '' %>">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary"><%= isEdit ? 'Update Task' : 'Create Task' %></button>
+          <a href="/tasks" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

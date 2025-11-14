@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Task Manager</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h1>Create Account</h1>
+      <% if (error) { %>
+        <div class="error-message"><%= error %></div>
+      <% } %>
+      <form action="/register" method="POST">
+        <div class="form-row-two-col">
+          <div class="input-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required maxlength="50" value="<%= formData && formData.firstName ? formData.firstName : '' %>">
+          </div>
+          <div class="input-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required maxlength="50" value="<%= formData && formData.lastName ? formData.lastName : '' %>">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Choose a unique username" required minlength="3" maxlength="50" value="<%= formData && formData.username ? formData.username : '' %>">
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="Enter your valid email address" required value="<%= formData && formData.email ? formData.email : '' %>">
+        </div>
+        <div class="form-row-two-col">
+          <div class="input-group">
+            <label for="password">Password</label>
+            <div class="password-container">
+              <input type="password" id="password" name="password" placeholder="Enter a strong password" required minlength="6" value="<%= formData && formData.password ? formData.password : '' %>">
+              <button type="button" id="togglePassword" class="toggle-password">Show</button>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="password-container">
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password to confirm" required minlength="6" value="<%= formData && formData.confirmPassword ? formData.confirmPassword : '' %>">
+              <button type="button" id="toggleConfirmPassword" class="toggle-password">Show</button>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+      <p class="form-footer">Already have an account? <a href="/login">Login here</a></p>
+    </div>
+  </div>
+
+  <script>
+    // Debounce function to limit API calls
+    function debounce(func, delay) {
+      let timeoutId;
+      return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    // Function to check availability
+    async function checkAvailability(type, value) {
+      if (!value.trim()) return;
+      try {
+        const response = await fetch(`/api/check-${type}/${encodeURIComponent(value)}`);
+        const data = await response.json();
+        const input = document.getElementById(type);
+        input.classList.remove('is-available', 'is-taken');
+        if (data.available) {
+          input.classList.add('is-available');
+        } else {
+          input.classList.add('is-taken');
+        }
+      } catch (error) {
+        console.error('Error checking availability:', error);
+      }
+    }
+
+    // Debounced check functions
+    const debouncedCheckEmail = debounce((value) => checkAvailability('email', value), 500);
+    const debouncedCheckUsername = debounce((value) => checkAvailability('username', value), 500);
+
+    // Event listeners
+    document.getElementById('email').addEventListener('keyup', (e) => {
+      debouncedCheckEmail(e.target.value);
+    });
+
+    document.getElementById('username').addEventListener('keyup', (e) => {
+      debouncedCheckUsername(e.target.value);
+    });
+
+    // Password toggle function
+    function togglePasswordVisibility(inputId, buttonId) {
+      const input = document.getElementById(inputId);
+      const button = document.getElementById(buttonId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = 'Hide';
+      } else {
+        input.type = 'password';
+        button.textContent = 'Show';
+      }
+    }
+
+    // Event listeners for password toggles
+    document.getElementById('togglePassword').addEventListener('click', () => {
+      togglePasswordVisibility('password', 'togglePassword');
+    });
+
+    document.getElementById('toggleConfirmPassword').addEventListener('click', () => {
+      togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
+    });
+  </script>
+</body>
+</html>
